@@ -16,6 +16,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   TextEditingController weighController = TextEditingController();
   TextEditingController heightController = TextEditingController();
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   String _infoText = "Informe seus dados!";
 
   void _resetFields() {
@@ -23,6 +25,7 @@ class _HomeState extends State<Home> {
     heightController.text = "";
     setState(() {
       _infoText = "Informe seus dados!";
+      _formKey = GlobalKey<FormState>();
     });
   }
 
@@ -51,22 +54,24 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Calculadora de IMC"),
-          centerTitle: true,
-          backgroundColor: Colors.green,
-          actions: <Widget>[
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: () {
-                _resetFields();
-              },
-            )
-          ],
-        ),
-        backgroundColor: Colors.white,
-        body: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+      appBar: AppBar(
+        title: Text("Calculadora de IMC"),
+        centerTitle: true,
+        backgroundColor: Colors.green,
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              _resetFields();
+            },
+          )
+        ],
+      ),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+        child: Form(
+          key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
@@ -75,7 +80,7 @@ class _HomeState extends State<Home> {
                 size: 120.0,
                 color: Colors.green,
               ),
-              TextField(
+              TextFormField(
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: "Peso em (kg)",
@@ -87,8 +92,13 @@ class _HomeState extends State<Home> {
                   fontSize: 25.9,
                 ),
                 controller: weighController,
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return "Insira sua Altura";
+                  }
+                },
               ),
-              TextField(
+              TextFormField(
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: "Altura (cm)",
@@ -100,6 +110,11 @@ class _HomeState extends State<Home> {
                   fontSize: 25.9,
                 ),
                 controller: heightController,
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return "Insira sua Altura";
+                  }
+                },
               ),
               Padding(
                 padding: EdgeInsets.only(top: 10, bottom: 10),
@@ -107,7 +122,9 @@ class _HomeState extends State<Home> {
                   height: 50.0,
                   child: RaisedButton(
                     onPressed: () {
-                      _calcular();
+                      if (_formKey.currentState.validate()) {
+                        _calcular();
+                      }
                     },
                     child: Text(
                       "Calcular",
@@ -130,6 +147,8 @@ class _HomeState extends State<Home> {
               )
             ],
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
